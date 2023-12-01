@@ -121,6 +121,17 @@ class AnchorGenerator:
         self.center_offset = center_offset
         self.base_anchors = self.gen_base_anchors()
         self.use_box_type = use_box_type
+        self.shifts = {}
+        feat_w = 336
+        feat_h = 192
+        stride = 4
+        for i in range(self.num_levels):
+            shift_x = torch.arange(0, feat_w, device=device, dtype=dtype) * stride_w
+            shift_y = torch.arange(0, feat_h, device=device, dtype=dtype) * stride_h
+            self.shifts[i] = self._meshgrid(shift_x, shift_y)
+            stride *= 2
+            feat_h /= 2
+            feat_w /= 2
 
     @property
     def num_base_anchors(self) -> List[int]:
@@ -279,14 +290,10 @@ class AnchorGenerator:
         """
 
         base_anchors = self.base_anchors[level_idx].to(device).to(dtype)
-        feat_h, feat_w = featmap_size
-        stride_w, stride_h = self.strides[level_idx]
         # First create Range with the default dtype, than convert to
         # target `dtype` for onnx exporting.
-        shift_x = torch.arange(0, feat_w, device=device, dtype=dtype) * stride_w
-        shift_y = torch.arange(0, feat_h, device=device, dtype=dtype) * stride_h
 
-        shift_xx, shift_yy = self._meshgrid(shift_x, shift_y)
+        shift_xx, shift_yy = self.shifts[level_idx]
         shifts = torch.stack([shift_xx, shift_yy, shift_xx, shift_yy], dim=-1)
         # first feat_w elements correspond to the first row of shifts
         # add A anchors (1, A, 4) to K shifts (K, 1, 4) to get
