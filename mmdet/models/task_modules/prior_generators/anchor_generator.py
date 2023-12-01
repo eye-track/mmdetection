@@ -126,8 +126,8 @@ class AnchorGenerator:
         feat_h = 192
         stride = 4
         for i in range(self.num_levels):
-            shift_x = torch.arange(0, feat_w, device=device, dtype=dtype) * stride_w
-            shift_y = torch.arange(0, feat_h, device=device, dtype=dtype) * stride_h
+            shift_x = torch.arange(0, feat_w, device="cuda", dtype=torch.float32) * stride_w
+            shift_y = torch.arange(0, feat_h, device="cuda", dtype=torch.float32) * stride_h
             self.shifts[i] = (shift_x, shift_y)
             stride *= 2
             feat_h /= 2
