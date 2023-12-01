@@ -49,7 +49,6 @@ def init_detector(
     Returns:
         nn.Module: The constructed detector.
     """
-    print("THIS IS A TEST")
     if isinstance(config, (str, Path)):
         config = Config.fromfile(config)
     elif not isinstance(config, Config):
